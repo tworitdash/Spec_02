@@ -80,17 +80,17 @@ E_ph = -sin(ph) .* E_far_x + cos(ph) .* E_far_y;
 
 figure(1);
 
-plot(th(1, :)*180/pi, db(abs(E_abs(1, :))/max(abs(E_abs(1, :)))), 'LineWidth', 2);
+plot(th(1, :)*180/pi, db(abs(E_th(91, :))/max(abs(E_th(91, :)))), 'LineWidth', 2);
 grid on;
 hold on;
 
-plot(th(91, :)*180/pi, db(abs(E_abs(91, :))/max(abs(E_abs(91, :)))), 'LineWidth', 2);
+plot(th(91, :)*180/pi, db(abs(E_ph(1, :))/max(abs(E_ph(1, :)))), 'LineWidth', 2);
 
 ylim([-50 0]);
 
 xlabel('\theta(deg)', 'FontSize', 12, 'FontWeight', 'bold');
-ylabel('E(\theta)_{\phi} = 0), E(\phi)_{\phi = 0})', 'FontSize', 12, 'FontWeight', 'bold');
+ylabel('E(\theta)_{\phi} = 90), E(\phi)_{\phi = 0})', 'FontSize', 12, 'FontWeight', 'bold');
 title('Normalized Far Electric Field at different cuts', 'FontSize', 12, 'FontWeight', 'bold');
-legend({['E_{\theta}(\phi = 0)'], ['E_{\phi}(\phi = 90)']},'Location','northeast', 'FontSize', 12, 'FontWeight', 'bold');
+legend({['E_{\theta}(\phi = 90)'], ['E_{\phi}(\phi = 0)']},'Location','northeast', 'FontSize', 12, 'FontWeight', 'bold');
 
 print('Q3_FF', '-depsc')
