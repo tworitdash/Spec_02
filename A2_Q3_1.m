@@ -14,23 +14,25 @@ r_obs = 1000 .* lambda;
 dth = pi/180;
 dph = pi/180;
 
-[th, ph] = meshgrid(-pi/2-eps:dth:pi/2-eps, eps:dph:2*pi-eps);
+[th, ph] = meshgrid(-pi/2-1e-7:dth:pi/2-1e-7, eps:dph:2*pi-eps);
     
 k0 = 2 * pi / lambda;
 
 kx = k0 .* sin(th) .* cos(ph);
 ky = k0 .* sin(th) .* sin(ph);
 kz = k0 .* cos(th);
+
+
 k_rho_2 = (kx.^2 + ky.^2);
 
-kz0 = -1j * sqrt(-(k0.^2 - kx.^2 - ky.^2));
+
 
 zeta_s = zeta/sqrt(epsilon_r);
 
 
 
 ksub = k0 * sqrt(epsilon_r);
-kzs = -1j * sqrt(-(ksub.^2 - kx.^2 - ky.^2));
+%kzs = -1j * sqrt(-(ksub.^2 - kx.^2 - ky.^2));
 
 
 
@@ -40,6 +42,9 @@ z = h+eps;
 kxsub = k0 .* sqrt(epsilon_r) .* sin(th) .* cos(ph);
 kysub = k0 .* sqrt(epsilon_r) .* sin(th) .* sin(ph);
 kzsub = k0 .* sqrt(epsilon_r) .* cos(th);
+
+kzs = -1j * sqrt(-(ksub.^2 - kxsub.^2 - kysub.^2));
+kz0 = -1j * sqrt(-(k0.^2 - kxsub.^2 - kysub.^2));
 
 k_rho_2_s = (kxsub.^2 + kysub.^2);
 
@@ -65,12 +70,12 @@ zs_TE = zeta_s * ksub ./ kzs;
 
 [G_xx, G_yx, G_zx] = Green_em(vtm, vte, itm, ite, kxsub, kysub, k_rho_2_s, zeta_s, ksub);
 
-[Mx, My, Mz] = JFT_freq(l, w, ksub, kxsub, kysub);
+[Mx, My, Mz] = JFT_freq(l, w, k0, kxsub, kysub);
 
 
-E_far_x = 1j .* kzsub .* Mx .* G_xx .* exp(-1j .* kzsub .* abs(z)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
-E_far_y = 1j .* kzsub .* Mx .* G_yx .* exp(-1j .* kzsub .* abs(z)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
-E_far_z = 1j .* kzsub .* Mx .* G_zx .* exp(-1j .* kzsub .* abs(z)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
+E_far_x = 1j .* kzsub .* Mx .* G_xx .* exp(-1j .* kzsub .* abs(z - h)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
+E_far_y = 1j .* kzsub .* Mx .* G_yx .* exp(-1j .* kzsub .* abs(z - h)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
+E_far_z = 1j .* kzsub .* Mx .* G_zx .* exp(-1j .* kzsub .* abs(z - h)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
 
 
 E_abs = sqrt(abs(E_far_x).^2 + abs(E_far_y).^2 + abs(E_far_z).^2);
@@ -89,7 +94,7 @@ plot(th(91, :)*180/pi, db(abs(E_ph(1, :))/max(abs(E_ph(1, :)))), 'LineWidth', 2)
 ylim([-50 0]);
 
 xlabel('\theta(deg)', 'FontSize', 12, 'FontWeight', 'bold');
-ylabel('E(\theta)_{\phi} = 90), E(\phi)_{\phi = 0})', 'FontSize', 12, 'FontWeight', 'bold');
+ylabel('E(\theta)_{\phi} = 90), E(\phi)_{\phi = 0}) [dB]', 'FontSize', 12, 'FontWeight', 'bold');
 title('Normalized Far Electric Field at different cuts', 'FontSize', 12, 'FontWeight', 'bold');
 legend({['E_{\theta}(\phi = 90)'], ['E_{\phi}(\phi = 0)']},'Location','northeast', 'FontSize', 12, 'FontWeight', 'bold');
 

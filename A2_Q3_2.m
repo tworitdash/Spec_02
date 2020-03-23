@@ -17,7 +17,7 @@ dph = pi/180;
 
 for i = 1:size(epsilon_r, 2)
     
-[th, ph] = meshgrid(eps:dth:pi, eps:dph:2*pi);
+[th, ph] = meshgrid(eps:dth:pi/2, eps:dph:2*pi);
     
 k0 = 2 * pi / lambda;
 
@@ -26,14 +26,15 @@ ky = k0 .* sin(th) .* sin(ph);
 kz = k0 .* cos(th);
 k_rho_2 = (kx.^2 + ky.^2);
 
-kz0 = -1j * sqrt(-(k0.^2 - kx.^2 - ky.^2));
+
 
 zeta_s = zeta/sqrt(epsilon_r(i));
 
 
 
 ksub = k0 * sqrt(epsilon_r(i));
-kzs = -1j * sqrt(-(ksub.^2 - kx.^2 - ky.^2));
+%kzs = -1j * sqrt(-(ksub.^2 - kx.^2 - ky.^2));
+
 
 
 
@@ -44,7 +45,12 @@ kxsub = k0 .* sqrt(epsilon_r(i)) .* sin(th) .* cos(ph);
 kysub = k0 .* sqrt(epsilon_r(i)) .* sin(th) .* sin(ph);
 kzsub = k0 .* sqrt(epsilon_r(i)) .* cos(th);
 
+kzs = -1j * sqrt(-(ksub.^2 - kxsub.^2 - kysub.^2));
+
+kz0 = -1j * sqrt(-(k0.^2 - kxsub.^2 - kysub.^2));
+
 k_rho_2_s = (kxsub.^2 + kysub.^2);
+
 % For TM
 z0_TM = zeta * kz0 ./ k0;
 zs_TM = zeta_s * kzs ./ ksub;
@@ -65,12 +71,12 @@ zs_TE = zeta_s * ksub ./ kzs;
 
 [G_xx, G_yx, G_zx] = Green_em(vtm, vte, itm, ite, kxsub, kysub, k_rho_2_s, zeta_s, ksub);
 
-[Mx, My, Mz] = JFT_freq(l, w, ksub, kxsub, kysub);
+[Mx, My, Mz] = JFT_freq(l, w, k0, kxsub, kysub);
 
 
-E_far_x = 1j .* kzsub .* Mx .* G_xx .* exp(-1j .* kzsub .* abs(z - h)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
-E_far_y = 1j .* kzsub .* Mx .* G_yx .* exp(-1j .* kzsub .* abs(z - h)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
-E_far_z = 1j .* kzsub .* Mx .* G_zx .* exp(-1j .* kzsub .* abs(z - h)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
+E_far_x = 1j .* kzsub .* Mx .* G_xx .* exp(-1j .* kzsub .* abs(z)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
+E_far_y = 1j .* kzsub .* Mx .* G_yx .* exp(-1j .* kzsub .* abs(z)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
+E_far_z = 1j .* kzsub .* Mx .* G_zx .* exp(-1j .* kzsub .* abs(z)) .* exp(-1j .* ksub .* r_obs) ./ (2 * pi * r_obs);
 
 
 E_abs = sqrt(abs(E_far_x).^2 + abs(E_far_y).^2 + abs(E_far_z).^2);
@@ -84,7 +90,7 @@ E_ph = -sin(ph) .* E_far_x + cos(ph) .* E_far_y;
 V_far_th = E_th * r_obs./(exp(-1j * k0 * r_obs));
 V_far_ph = E_ph * r_obs./(exp(-1j * k0 * r_obs));
     
-C_rad = 1/(2 * zeta);
+C_rad = 1/(2 * zeta_s);
 V_far_abs = sqrt(abs(V_far_th).^2 + abs(V_far_ph).^2);
 U = C_rad * (V_far_abs).^2;
 
@@ -104,7 +110,7 @@ grid on;
 xlabel('\epsilon_r', 'FontSize', 12, 'FontWeight', 'bold');
 ylabel('Directivity(Linear Scale) at \theta = 0', 'FontSize', 12, 'FontWeight', 'bold');
 title('Directivity', 'FontSize', 12, 'FontWeight', 'bold');
-xlim([1 25]);
+%xlim([1 25]);
 
 
 
@@ -119,5 +125,6 @@ grid on;
 xlabel('\epsilon_r', 'FontSize', 12, 'FontWeight', 'bold');
 ylabel('Directivity(dB) at \theta = 0', 'FontSize', 12, 'FontWeight', 'bold');
 title('Directivity', 'FontSize', 12, 'FontWeight', 'bold');
-xlim([1 25]);
+%xlim([1 25]);
+%ylim([-50 20]);
 print(['D_Q3_2_dB'], '-depsc')
